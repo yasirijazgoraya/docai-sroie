@@ -1,0 +1,8 @@
+psycopg[binary]
+sentence-transformers
+transformers
+torch
+bitsandbytes
+accelerate
+boto3
+pydantic
