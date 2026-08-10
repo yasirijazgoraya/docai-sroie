@@ -1,0 +1,176 @@
+<mxGraphModel dx="1422" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2336" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <mxCell id="bandA" value="LAYER 1 — VISION / KIE   (complete)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b3b3b3;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="40" y="40" width="1560" height="300" as="geometry" />
+    </mxCell>
+    <mxCell id="bandB" value="LAYER 2 — STORAGE AND INDEXING   (complete)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b3b3b3;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="40" y="370" width="1560" height="330" as="geometry" />
+    </mxCell>
+    <mxCell id="bandC" value="LAYER 3 — RAG / QUESTION ANSWERING   (arm A complete)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b3b3b3;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="40" y="730" width="1560" height="360" as="geometry" />
+    </mxCell>
+    <mxCell id="bandD" value="EVALUATION" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b3b3b3;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="40" y="1120" width="1560" height="300" as="geometry" />
+    </mxCell>
+    <mxCell id="bandE" value="PLANNED — ARMS B / C AND LAYER 4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#b3b3b3;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="40" y="1450" width="1560" height="290" as="geometry" />
+    </mxCell>
+
+    <mxCell id="a1" value="&lt;b&gt;SROIE test split&lt;/b&gt;&lt;br&gt;347 scanned receipt images&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;data/SROIE2019/test/img&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="70" y="180" width="190" height="70" as="geometry" />
+    </mxCell>
+
+    <mxCell id="a2" value="&lt;b&gt;Qwen2.5-VL-7B zero-shot&lt;/b&gt;&lt;br&gt;local GPU, 4-bit&lt;br&gt;&lt;font color=&quot;#009900&quot;&gt;SELECTED for Layer 2&lt;/font&gt;&lt;br&gt;vendor .951 / date .968&lt;br&gt;total .977 / address .908" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="320" y="90" width="200" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="a3" value="Qwen2.5-VL LoRA fine-tuned&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;flat/lower on SROIE;&lt;br&gt;wins on CORD line items&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="320" y="190" width="200" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="a4" value="AWS Textract AnalyzeExpense&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;baseline, ~USD 0.01/page&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="320" y="255" width="200" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="a5" value="Claude Haiku 4.5 (Bedrock)&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;baseline, ~USD 0.003/page&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="320" y="310" width="200" height="45" as="geometry" />
+    </mxCell>
+
+    <mxCell id="a6" value="&lt;b&gt;Structured records&lt;/b&gt;&lt;br&gt;zeroshot__sroie__test.jsonl&lt;br&gt;vendor / date / total / address" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="620" y="110" width="210" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="a7" value="&lt;b&gt;Full OCR text&lt;/b&gt;&lt;br&gt;ocr_text__sroie__test.jsonl&lt;br&gt;raw page text per receipt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="620" y="200" width="210" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="a8" value="&lt;b&gt;05_score.py&lt;/b&gt;&lt;br&gt;exact-match accuracy&lt;br&gt;(single-value fields:&lt;br&gt;acc = P = R = F1)&lt;br&gt;&lt;font color=&quot;#cc0000&quot;&gt;token-F1 deprecated&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="920" y="100" width="180" height="85" as="geometry" />
+    </mxCell>
+    <mxCell id="a9" value="&lt;b&gt;RQ1 finding&lt;/b&gt;&lt;br&gt;No paid service wins any&lt;br&gt;SROIE field. Open 4-bit 7B&lt;br&gt;model leads outright." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1180" y="100" width="200" height="85" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="a1" target="a2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#999999;" edge="1" parent="1" source="a1" target="a3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#999999;" edge="1" parent="1" source="a1" target="a4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#999999;" edge="1" parent="1" source="a1" target="a5"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="a2" target="a6"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="a2" target="a7"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#b85450;" edge="1" parent="1" source="a6" target="a8"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#b85450;" edge="1" parent="1" source="a8" target="a9"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="b0" value="&lt;b&gt;BOUNDARY RULE&lt;/b&gt;&amp;nbsp; structured fields are queried directly with SQL and are NEVER chunked or embedded; only full OCR text is chunked and embedded" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;fontColor=#cc0000;" vertex="1" parent="1">
+      <mxGeometry x="400" y="400" width="840" height="20" as="geometry" />
+    </mxCell>
+
+    <mxCell id="b1" value="&lt;b&gt;load_structured.py&lt;/b&gt;&lt;br&gt;normalise money (locale-aware),&lt;br&gt;dates (17 formats + epoch),&lt;br&gt;text (whitespace/punct)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="330" y="440" width="210" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="b2" value="&lt;b&gt;documents&lt;/b&gt; table&lt;br&gt;PostgreSQL 16&lt;br&gt;347 rows&lt;br&gt;PK (dataset, arm, doc_id)&lt;br&gt;btree: vendor / date / total" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="640" y="430" width="200" height="100" as="geometry" />
+    </mxCell>
+
+    <mxCell id="b3" value="&lt;b&gt;build_chunks.py&lt;/b&gt;&lt;br&gt;whole → 347 chunks (668 ch)&lt;br&gt;window → 883 chunks (307 ch)&lt;br&gt;lines → 17,266 chunks (12 ch)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="330" y="560" width="210" height="75" as="geometry" />
+    </mxCell>
+    <mxCell id="b4" value="&lt;b&gt;all-MiniLM-L6-v2&lt;/b&gt;&lt;br&gt;384-dim, local GPU&lt;br&gt;cosine, normalised" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="590" y="565" width="150" height="65" as="geometry" />
+    </mxCell>
+    <mxCell id="b5" value="&lt;b&gt;chunks&lt;/b&gt; table (pgvector 0.6)&lt;br&gt;18,496 rows&lt;br&gt;vector(384)&lt;br&gt;HNSW cosine, one partial&lt;br&gt;index PER strategy" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="820" y="550" width="210" height="100" as="geometry" />
+    </mxCell>
+    <mxCell id="b6" value="&lt;font color=&quot;#cc0000&quot;&gt;partial indexes are required:&lt;br&gt;a single HNSW index filters&lt;br&gt;AFTER the scan, so the 50:1&lt;br&gt;lines:whole ratio starved&lt;br&gt;the other strategies&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="1">
+      <mxGeometry x="1080" y="555" width="190" height="90" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="a6" target="b1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="a7" target="b3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="b1" target="b2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="b3" target="b4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="b4" target="b5"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="c1" value="&lt;b&gt;SROIE gold entities&lt;/b&gt;&lt;br&gt;company / date / address / total&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;answer key — never taken&lt;br&gt;from our own predictions&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="70" y="790" width="200" height="75" as="geometry" />
+    </mxCell>
+    <mxCell id="c2" value="&lt;b&gt;build_qa.py&lt;/b&gt;&lt;br&gt;287 questions&lt;br&gt;200 lookup (one receipt)&lt;br&gt;87 aggregate (many receipts)&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;identified by vendor + date;&lt;br&gt;ambiguous pairs skipped&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="70" y="900" width="200" height="105" as="geometry" />
+    </mxCell>
+
+    <mxCell id="c3" value="user question" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="330" y="785" width="120" height="35" as="geometry" />
+    </mxCell>
+    <mxCell id="c4" value="&lt;b&gt;embed query&lt;/b&gt;&lt;br&gt;MiniLM 384-d" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="330" y="860" width="120" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="c5" value="&lt;b&gt;top-k retrieval&lt;/b&gt;&lt;br&gt;k = 5, cosine&lt;br&gt;FIXED: no rewriting,&lt;br&gt;no re-retrieval" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="510" y="850" width="150" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="c6" value="&lt;b&gt;prompt assembly&lt;/b&gt;&lt;br&gt;retrieved receipt text&lt;br&gt;+ question&lt;br&gt;&lt;font color=&quot;#009900&quot;&gt;explicit NOT_FOUND option&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="710" y="845" width="180" height="80" as="geometry" />
+    </mxCell>
+    <mxCell id="c7" value="&lt;b&gt;Qwen2.5-VL-7B-Instruct&lt;/b&gt;&lt;br&gt;4-bit QLoRA, RTX 4080 16GB&lt;br&gt;greedy, 64 max tokens&lt;br&gt;&lt;font color=&quot;#009900&quot;&gt;cost USD 0.00 / question&lt;/font&gt;&lt;br&gt;median 325 ms" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="940" y="840" width="200" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="c8" value="&lt;b&gt;run record (JSONL)&lt;/b&gt;&lt;br&gt;answer, retrieved_docs,&lt;br&gt;similarities, retrieval_hit,&lt;br&gt;answer_grounded, latency" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1200" y="845" width="190" height="80" as="geometry" />
+    </mxCell>
+
+    <mxCell id="c9" value="&lt;font color=&quot;#666666&quot;&gt;aggregate questions reach the LLM with only k=5 of 7–30 receipts —&lt;br&gt;structurally unanswerable by retrieval (accuracy 0.011)&lt;/font&gt;" style="text;html=1;align=center;fontSize=10;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="480" y="1030" width="620" height="30" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c1" target="c2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e21" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c2" target="c3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e22" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c3" target="c4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e23" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c4" target="c5"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e24" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;dashed=1;" edge="1" parent="1" source="b5" target="c5"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e25" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c5" target="c6"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e26" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c6" target="c7"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e27" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="c7" target="c8"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="d1" value="&lt;b&gt;score_rag.py&lt;/b&gt;&lt;br&gt;separate pass — metrics can&lt;br&gt;change without re-running&lt;br&gt;generation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="70" y="1180" width="190" height="75" as="geometry" />
+    </mxCell>
+    <mxCell id="d2" value="&lt;b&gt;five-way outcome split&lt;/b&gt;&lt;br&gt;correct&lt;br&gt;abstained (NOT_FOUND)&lt;br&gt;llm_error (right doc, wrong answer)&lt;br&gt;retrieval_error (wrong doc, honest)&lt;br&gt;&lt;font color=&quot;#cc0000&quot;&gt;hallucination (in NO chunk)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+      <mxGeometry x="310" y="1170" width="250" height="100" as="geometry" />
+    </mxCell>
+    <mxCell id="d3" value="&lt;b&gt;RESULTS — arm A, k=5, same LLM&lt;/b&gt;&lt;br&gt;&lt;br&gt;whole&amp;nbsp;&amp;nbsp;&amp;nbsp;acc .223&amp;nbsp; hit .446&amp;nbsp; halluc 0.8%&lt;br&gt;window&amp;nbsp; acc .139&amp;nbsp; hit .484&amp;nbsp; halluc 3.1%&lt;br&gt;lines&amp;nbsp;&amp;nbsp;&amp;nbsp;acc .010&amp;nbsp; hit .345&amp;nbsp; halluc 89.3%&lt;br&gt;&lt;br&gt;lookup .315&amp;nbsp; vs&amp;nbsp; aggregate .011" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+      <mxGeometry x="610" y="1160" width="290" height="120" as="geometry" />
+    </mxCell>
+    <mxCell id="d4" value="&lt;b&gt;H3 supported&lt;/b&gt;&amp;nbsp; chunking alone moves&lt;br&gt;accuracy 22× with the LLM held constant.&lt;br&gt;&lt;br&gt;&lt;b&gt;H4 refined&lt;/b&gt;&amp;nbsp; given an explicit abstention&lt;br&gt;option, retrieval failure produces&lt;br&gt;abstention rather than hallucination.&lt;br&gt;&lt;br&gt;&lt;b&gt;Threshold: negative result&lt;/b&gt;&amp;nbsp; cosine&lt;br&gt;similarity is a weak confidence signal&lt;br&gt;and is NOT comparable across strategies." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+      <mxGeometry x="950" y="1150" width="300" height="145" as="geometry" />
+    </mxCell>
+    <mxCell id="d5" value="&lt;font color=&quot;#cc0000&quot;&gt;caveat: retrieval_hit is measured at&lt;br&gt;DOCUMENT level, so a 12-char fragment&lt;br&gt;from the right receipt counts as a hit&lt;br&gt;while being useless to answer from&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="1">
+      <mxGeometry x="1290" y="1165" width="230" height="80" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e30" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;strokeColor=#b85450;" edge="1" parent="1" source="c8" target="d1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e31" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="d1" target="d2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e32" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="d2" target="d3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e33" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;" edge="1" parent="1" source="d3" target="d4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="f1" value="&lt;b&gt;ARM B — router&lt;/b&gt;&lt;br&gt;classify question:&lt;br&gt;aggregate → SQL&lt;br&gt;lookup → vector&lt;br&gt;one hop, no loop" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="90" y="1510" width="180" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="f2" value="&lt;b&gt;SQL path&lt;/b&gt; over documents&lt;br&gt;SELECT sum(total) … GROUP BY vendor&lt;br&gt;&lt;font color=&quot;#009900&quot;&gt;exact by construction — the 87&lt;br&gt;aggregate questions RAG cannot answer&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="330" y="1505" width="250" height="100" as="geometry" />
+    </mxCell>
+    <mxCell id="f3" value="&lt;b&gt;ARM C — agent&lt;/b&gt;&lt;br&gt;tools: sql_query, vector_search&lt;br&gt;multi-step, may re-query&lt;br&gt;&lt;font color=&quot;#cc0000&quot;&gt;breaks the fixed-retrieval&lt;br&gt;assumption H3/H4 rely on —&lt;br&gt;hence measured, not assumed&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="640" y="1500" width="230" height="110" as="geometry" />
+    </mxCell>
+    <mxCell id="f4" value="&lt;b&gt;second LLM family&lt;/b&gt;&lt;br&gt;(Mistral-7B / Phi-3.5)&lt;br&gt;completes H3: compare the&lt;br&gt;LLM-choice span against the&lt;br&gt;chunking span already measured" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="930" y="1505" width="230" height="100" as="geometry" />
+    </mxCell>
+    <mxCell id="f5" value="&lt;b&gt;LAYER 4 — cost / adoption&lt;/b&gt;&lt;br&gt;amortised GPU cost vs cloud&lt;br&gt;per-page rates across SME&lt;br&gt;volume bands (RQ3, H5/H6)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1220" y="1505" width="230" height="100" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e40" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="f1" target="f2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e41" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="f2" target="f3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="e42" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="f3" target="f4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="leg" value="&lt;b&gt;Legend&lt;/b&gt;&amp;nbsp;&amp;nbsp; green = selected / in production path&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; orange = data artefact (JSONL)&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; red = scoring&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; purple = finding&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; yellow = methodological caveat&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp; dashed = not yet built" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="40" y="1760" width="1400" height="20" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>
