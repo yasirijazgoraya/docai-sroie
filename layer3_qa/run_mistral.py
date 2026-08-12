@@ -146,8 +146,9 @@ class VendorIndex:
     """IDF-weighted vendor matching -- generic tokens (hardware, cash, carry)
     must not drive a match; rare tokens (unihakka, kuchai) must."""
 
-    def __init__(self, known):
+    def __init__(self, known, vid=None):
         self.known = known
+        self.vid = vid or {}
         self.df = {}
         for v in known:
             for t in tokens(v):
@@ -172,6 +173,8 @@ class VendorIndex:
             inter = sum(self.idf(t) for t in want & have)
             if inter / w >= 0.75 and inter / sum(self.idf(t) for t in have) >= 0.75:
                 out.append(v)
+        if self.vid:
+            return sorted({self.vid[v] for v in out if v in self.vid})
         return out
 
 
@@ -218,7 +221,7 @@ def sql_aggregate(cur, intent, vidx):
         agg = {"sum_vendor": "sum(total)", "count_vendor": "count(*)",
                "max_vendor": "max(total)"}[action]
         cur.execute(f"SELECT {agg} FROM documents WHERE dataset=%s AND arm=%s "
-                    f"AND vendor = ANY(%s)", (DATASET, ARM_DB, vendors))
+                    f"AND vendor_id = ANY(%s)", (DATASET, ARM_DB, vendors))
         return cur.fetchone()[0], None
     if action in ("sum_year", "count_year"):
         if not year:
@@ -236,7 +239,7 @@ def resolve_docs(cur, intent, vidx):
     date, amount = intent.get("date"), intent.get("amount")
     if vendors and date:
         cur.execute("SELECT doc_id FROM documents WHERE dataset=%s AND arm=%s "
-                    "AND vendor = ANY(%s) AND doc_date=%s",
+                    "AND vendor_id = ANY(%s) AND doc_date=%s",
                     (DATASET, ARM_DB, vendors, date))
         rows = [r[0] for r in cur.fetchall()]
         if rows:
@@ -244,7 +247,7 @@ def resolve_docs(cur, intent, vidx):
     if vendors and amount is not None:
         try:
             cur.execute("SELECT doc_id FROM documents WHERE dataset=%s AND arm=%s "
-                        "AND vendor = ANY(%s) AND abs(total-%s)<=0.01",
+                        "AND vendor_id = ANY(%s) AND abs(total-%s)<=0.01",
                         (DATASET, ARM_DB, vendors, float(amount)))
             rows = [r[0] for r in cur.fetchall()]
             if rows:
@@ -253,7 +256,7 @@ def resolve_docs(cur, intent, vidx):
             pass
     if vendors:
         cur.execute("SELECT doc_id FROM documents WHERE dataset=%s AND arm=%s "
-                    "AND vendor = ANY(%s) LIMIT 5", (DATASET, ARM_DB, vendors))
+                    "AND vendor_id = ANY(%s) LIMIT 5", (DATASET, ARM_DB, vendors))
         rows = [r[0] for r in cur.fetchall()]
         if rows:
             return rows, "vendor only"
@@ -311,9 +314,12 @@ def main():
 
     total_cost, n_err = 0.0, 0
     with psycopg.connect(DSN) as conn, conn.cursor() as cur, out_path.open("w") as fh:
-        cur.execute("SELECT DISTINCT vendor FROM documents WHERE dataset=%s "
-                    "AND arm=%s AND vendor IS NOT NULL", (DATASET, ARM_DB))
-        vidx = VendorIndex([r[0] for r in cur.fetchall()])
+        cur.execute("SELECT DISTINCT vendor, vendor_id FROM documents "
+                    "WHERE dataset=%s AND arm=%s AND vendor IS NOT NULL",
+                    (DATASET, ARM_DB))
+        _rows = cur.fetchall()
+        vidx = VendorIndex([r[0] for r in _rows],
+                           {r[0]: r[1] for r in _rows})
 
         for i, q in enumerate(questions, 1):
             rec = {"qid": q["qid"], "kind": q["kind"], "field": q["field"],
