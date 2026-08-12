@@ -133,6 +133,85 @@ class VendorIndex:
         return sorted(ids)
 
 
+
+QWEN_ID = "Qwen/Qwen2.5-VL-7B-Instruct"
+
+
+class QwenBackend:
+    """Local 4-bit Qwen2.5-VL used as the agent's reasoning model.
+
+    Exposes the same (system, convo) -> (text, ms, tin, tout) contract as the
+    Bedrock Mistral path so the agent loop is identical for both. Token counts
+    are exact here (the tokenizer is local) but cost is zero, so they are
+    reported only for comparability.
+    """
+
+    label = QWEN_ID
+    cost_per_1k_in = 0.0
+    cost_per_1k_out = 0.0
+
+    def __init__(self):
+        import torch
+        from transformers import AutoProcessor, BitsAndBytesConfig
+        try:
+            from transformers import Qwen2_5_VLForConditionalGeneration as V
+        except ImportError:
+            from transformers import Qwen2VLForConditionalGeneration as V
+        self.torch = torch
+        bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
+                                 bnb_4bit_compute_dtype=torch.bfloat16,
+                                 bnb_4bit_use_double_quant=True)
+        self.proc = AutoProcessor.from_pretrained(QWEN_ID)
+        self.model = V.from_pretrained(QWEN_ID, quantization_config=bnb,
+                                       device_map="auto")
+        self.model.eval()
+
+    def __call__(self, messages):
+        convo = "\n\n".join(messages)
+        msgs = [{"role": "system", "content": [{"type": "text", "text": SYSTEM}]},
+                {"role": "user", "content": [{"type": "text", "text": convo}]}]
+        text = self.proc.apply_chat_template(msgs, tokenize=False,
+                                             add_generation_prompt=True)
+        inputs = self.proc(text=[text], return_tensors="pt").to(self.model.device)
+        t0 = time.time()
+        with self.torch.inference_mode():
+            out = self.model.generate(**inputs, max_new_tokens=200,
+                                      do_sample=False)
+        ms = (time.time() - t0) * 1000
+        gen = out[0][inputs["input_ids"].shape[1]:]
+        ans = self.proc.tokenizer.decode(gen, skip_special_tokens=True).strip()
+        return ans, ms, int(inputs["input_ids"].shape[1]), int(gen.shape[0])
+
+
+class MistralBackend:
+    """Bedrock Mistral Large, eu-west-1."""
+
+    label = LLM_ID
+    cost_per_1k_in = PRICE_IN / 1000
+    cost_per_1k_out = PRICE_OUT / 1000
+
+    def __init__(self):
+        import boto3
+        self.client = boto3.client("bedrock-runtime", region_name=REGION)
+
+    def __call__(self, messages, retries=4):
+        convo = "\n\n".join(messages)
+        prompt = f"<s>[INST] {SYSTEM}\n\n{convo} [/INST]"
+        for attempt in range(retries):
+            try:
+                t0 = time.time()
+                r = self.client.invoke_model(modelId=LLM_ID, body=json.dumps(
+                    {"prompt": prompt, "max_tokens": 200, "temperature": 0.0}))
+                ms = (time.time() - t0) * 1000
+                text = json.loads(r["body"].read())["outputs"][0]["text"].strip()
+                return text, ms, len(prompt) // 4, len(text) // 4
+            except Exception as exc:                        # noqa: BLE001
+                if "Throttl" in str(exc) and attempt < retries - 1:
+                    time.sleep(2 ** attempt)
+                    continue
+                raise
+
+
 def call_llm(client, messages, retries=4):
     """Bedrock Mistral takes a single prompt string, so the running transcript
     is flattened into one [INST] block each turn."""
@@ -279,14 +358,15 @@ def run_tool(cur, vidx, call):
 
 # --------------------------------------------------------------------- loop
 
-def answer_question(question, cur, vidx, client):
+def answer_question(question, cur, vidx, backend):
     messages = [f"Question: {question}"]
     trace, cost, total_ms = [], 0.0, 0.0
 
     for step in range(MAX_STEPS):
-        raw, ms, tin, tout = call_llm(client, messages)
+        raw, ms, tin, tout = backend(messages)
         total_ms += ms
-        cost += tin / 1e6 * PRICE_IN + tout / 1e6 * PRICE_OUT
+        cost += (tin * backend.cost_per_1k_in +
+                 tout * backend.cost_per_1k_out) / 1000
         obj = parse_json(raw)
 
         if obj is None:
@@ -305,9 +385,10 @@ def answer_question(question, cur, vidx, client):
 
     # ran out of steps: ask once for a final answer from what it has
     messages.append("Give your final answer now as {\"answer\":\"...\"}.")
-    raw, ms, tin, tout = call_llm(client, messages)
+    raw, ms, tin, tout = backend(messages)
     total_ms += ms
-    cost += tin / 1e6 * PRICE_IN + tout / 1e6 * PRICE_OUT
+    cost += (tin * backend.cost_per_1k_in +
+                 tout * backend.cost_per_1k_out) / 1000
     obj = parse_json(raw) or {}
     return (str(obj.get("answer", "NOT_FOUND")).strip(), trace, MAX_STEPS,
             total_ms, cost)
@@ -316,6 +397,9 @@ def answer_question(question, cur, vidx, client):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--qa", choices=["single", "multistep"], default="multistep")
+    ap.add_argument("--llm", choices=["qwen", "mistral"],
+                    default="mistral",
+                    help="agent reasoning model")
     ap.add_argument("--limit", type=int, default=0)
     a = ap.parse_args()
 
@@ -323,11 +407,13 @@ def main():
     questions = [json.loads(l) for l in path.open() if l.strip()]
     if a.limit:
         questions = questions[: a.limit]
-    print(f"{len(questions)} questions from {path.name} | agent | {LLM_ID}")
+    print(f"{len(questions)} questions from {path.name} | agent | "
+          f"{a.llm}")
 
-    client = boto3.client("bedrock-runtime", region_name=REGION)
+    backend = QwenBackend() if a.llm == "qwen" else MistralBackend()
     RUNS.mkdir(parents=True, exist_ok=True)
-    out_path = RUNS / f"agent_{a.qa}__k5.jsonl"
+    out_path = (RUNS / f"agent_{a.qa}__k5.jsonl" if a.llm == "mistral"
+                else RUNS / f"agent_{a.qa}_qwen__k5.jsonl")
 
     total_cost, steps_used = 0.0, []
     with psycopg.connect(DSN) as conn, conn.cursor() as cur, out_path.open("w") as fh:
@@ -341,7 +427,7 @@ def main():
         for i, q in enumerate(questions, 1):
             try:
                 ans, trace, n_steps, ms, cost = answer_question(
-                    q["question"], cur, vidx, client)
+                    q["question"], cur, vidx, backend)
                 err = None
             except Exception as exc:                        # noqa: BLE001
                 conn.rollback()
@@ -355,7 +441,7 @@ def main():
                 "field": q.get("field", q["kind"]),
                 "question": q["question"], "gold_answer": q["gold_answer"],
                 "gold_docs": q.get("gold_docs", []),
-                "model": LLM_ID, "arm": "agent",
+                "model": backend.label, "arm": "agent",
                 "model_answer": ans, "n_steps": n_steps, "trace": trace,
                 "retrieved_docs": [], "similarities": [], "top_similarity": None,
                 "retrieval_hit": None, "answer_grounded": None,
