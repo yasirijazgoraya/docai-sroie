@@ -75,8 +75,20 @@ def is_correct(kind, pred, gold):
     return g == pn or g in pn or pn in g
 
 
-def score(path):
+def score(path, qa=None):
     rows = [json.loads(l) for l in open(path) if l.strip()]
+    # Optionally re-join gold from a QA file (end-to-end gold lives there,
+    # not in the run file, which embeds gold as it was at run time).
+    if qa:
+        g = {}
+        for l in open(qa):
+            if l.strip():
+                r = json.loads(l)
+                g[r["qid"]] = (r["gold_answer"], r.get("gold_source", ""))
+        for r in rows:
+            if r["qid"] in g:
+                r["gold_answer"], r["_src"] = g[r["qid"]]
+        rows = [r for r in rows if r.get("_src") != "store (unchanged)"]
     if not rows:
         print(f"{path}: empty")
         return
@@ -122,6 +134,7 @@ def score(path):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("runs", nargs="+")
+    ap.add_argument("--qa", default=None)
     a = ap.parse_args()
     for p in a.runs:
-        score(p)
+        score(p, a.qa)
